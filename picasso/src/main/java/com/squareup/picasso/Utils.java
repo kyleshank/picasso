@@ -75,7 +75,7 @@ final class Utils {
     StringBuilder builder;
 
     if (data.uri != null) {
-      String path = data.uri.toString();
+      String path = data.uri.getPath(); // data.uri.toString();
       builder = new StringBuilder(path.length() + KEY_PADDING);
       builder.append(path);
     } else {
