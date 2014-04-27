@@ -7,10 +7,15 @@ import android.graphics.BitmapFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static android.content.ContentResolver.SCHEME_FILE;
 import static com.squareup.picasso.Picasso.LoadedFrom.DISK;
 
 class AssetBitmapHunter extends BitmapHunter {
-  private AssetManager assetManager;
+  protected static final String ANDROID_ASSET = "android_asset";
+  private static final int ASSET_PREFIX_LENGTH =
+      (SCHEME_FILE + ":///" + ANDROID_ASSET + "/").length();
+
+  private final AssetManager assetManager;
 
   public AssetBitmapHunter(Context context, Picasso picasso, Dispatcher dispatcher, Cache cache,
       Stats stats, Action action) {
@@ -28,10 +33,8 @@ class AssetBitmapHunter extends BitmapHunter {
   }
 
   Bitmap decodeAsset(String filePath) throws IOException {
-    BitmapFactory.Options options = null;
-    if (data.hasSize()) {
-      options = new BitmapFactory.Options();
-      options.inJustDecodeBounds = true;
+    final BitmapFactory.Options options = createBitmapOptions(data);
+    if (requiresInSampleSize(options)) {
       InputStream is = null;
       try {
         is = assetManager.open(filePath);
